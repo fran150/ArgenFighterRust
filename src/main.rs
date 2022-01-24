@@ -1,14 +1,16 @@
-use sdl2::pixels::Color;
-use sdl2::event::Event;
-use sdl2::keyboard::Keycode;
-use sdl2::rect::Point;
-use std::time::Duration;
-use rand::Rng;
+use engine::{Game, GameLoop, Stepables};
+use world::Trump;
 
-mod gfx;
 mod engine;
+mod world;
 
 fn main() -> Result<(), String> {
+    let mut game = Game::new("Test", 1024, 768);
+    
+    let mut gl = std::mem::replace(&mut game.game_loop, GameLoop { objects: Stepables::new() });
+
+    gl.run(&mut game);
+    
 
     Ok(())
 }

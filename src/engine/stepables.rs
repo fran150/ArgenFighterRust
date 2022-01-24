@@ -1,18 +1,18 @@
-use super::GameStep;
+use super::{GameStep, Game, StepData};
 
-pub struct Stepables<'a> {
-    objects: Vec<Box<&'a dyn GameStep>>
+pub struct Stepables {
+    objects: Vec<Box<dyn GameStep>>
 }
 
-impl<'a> Stepables<'a> {
-    pub fn new() -> Stepables<'a> {
+impl Stepables {
+    pub fn new() -> Stepables {
         return Stepables {
             objects: Vec::new()
         }
     }
 
-    pub fn add<T:GameStep>(&mut self, item:&'a T) -> usize {
-        self.objects.push(Box::new(item));
+    pub fn add(&mut self, item:Box<dyn GameStep>) -> usize {
+        self.objects.push(item);
         return self.objects.len() - 1;
     }
 
@@ -20,19 +20,15 @@ impl<'a> Stepables<'a> {
         self.objects.remove(index);
     }
 
-    pub fn get(&self, index:usize) -> &Box<&'a dyn GameStep> {
-        &self.objects[index]
-    }
-
-    pub fn update(&self, t:u128, dt:u128) {
-        for item in &self.objects {
-            item.update(t, dt);
+    pub fn update(&mut self, game: &mut Game, data: &StepData) {
+        for item in self.objects.iter_mut() {            
+            item.update(game, data);
         }
     }
 
-    pub fn render(&self) {
-        for item in &self.objects {
-            item.render();
+    pub fn render(&mut self, game: &mut Game) {
+        for item in self.objects.iter_mut() {
+            item.render(game);
         }
     }
 }
