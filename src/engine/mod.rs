@@ -1,30 +1,27 @@
 use std::time::Instant;
-use sdl2::{
-    pixels::Color, 
-    image::LoadTexture
-};
-
-use crate::sys::animator::{ 
-    AnimationStep,
-    Animator
-};
+use sdl2::pixels::Color;
 
 pub mod input;
 mod systems;
+mod textures;
 
 pub use systems::Renderable;
 pub use systems::Updatable;
 pub use systems::System;
+pub use systems::RenderData;
+pub use textures::Textures;
 
 const PPS:u128 = 60;
 const FPS:u128 = 60;
 
 pub struct Main {
+    pub systems: Vec<System>
 }
 
 impl Main {
     pub fn new() -> Self {
         Self {
+            systems: Vec::new()
         }
     }
 
@@ -53,56 +50,9 @@ impl Main {
         canvas.present();
 
         let texture_creator = canvas.texture_creator();
-
-        let mut systems = Vec::new();
-
-        let steps = vec![
-            AnimationStep {
-                x: 0,
-                y: 0,
-                w: 100,
-                h: 100,
-                duration: 50
-            },
-            AnimationStep {
-                x: 100,
-                y: 0,
-                w: 100,
-                h: 100,
-                duration: 50
-            },
-            AnimationStep {
-                x: 200,
-                y: 0,
-                w: 100,
-                h: 100,
-                duration: 50
-            },
-            AnimationStep {
-                x: 300,
-                y: 0,
-                w: 100,
-                h: 100,
-                duration: 50
-            },
-            AnimationStep {
-                x: 400,
-                y: 0,
-                w: 100,
-                h: 100,
-                duration: 50
-            },
-            AnimationStep {
-                x: 500,
-                y: 0,
-                w: 100,
-                h: 100,
-                duration: 50
-            }
-        ];
-
-        let mut animator = Animator::new(&texture_creator, steps);
-        systems.push(System::RenderSystem(&mut animator));
+        
+        let mut textures = Textures::new(&texture_creator);
+        textures.load_texture("Trump", "assets/trump_run.png");
 
         let mut input_handler = input::InputHandler::new(&context);
 
@@ -135,9 +85,13 @@ impl Main {
 
                 input_handler.handle_events();
 
-                for system in systems.iter_mut() {
+                for system in self.systems.iter_mut() {
                     if let System::UpdateSystem(updatable) = system {
-                        updatable.update(t, physics_size, input_handler.keyboard());
+                        updatable.update(systems::UpdateData { 
+                            t: t, 
+                            dt: physics_size, 
+                            keyboard: input_handler.keyboard()
+                         });
                     }
                 }
 
@@ -153,9 +107,14 @@ impl Main {
 
                 canvas.clear();
 
-                for system in systems.iter_mut() {
+                for system in self.systems.iter_mut() {
                     if let System::RenderSystem(renderable) = system {
-                        renderable.render(t, frame_size, &mut canvas);
+                        renderable.render(RenderData {
+                            t: t, 
+                            dt: frame_size, 
+                            canvas: &mut canvas, 
+                            textures: &textures
+                        });
                     }
                 }
         

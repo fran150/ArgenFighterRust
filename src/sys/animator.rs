@@ -1,6 +1,5 @@
-use sdl2::{render::{Texture, Canvas, TextureCreator}, video::{Window, WindowContext}, rect::{Rect, Point}, image::LoadTexture};
-
-use crate::engine::Renderable;
+use sdl2::rect::{Rect, Point};
+use crate::engine::{Renderable, RenderData};
 
 pub struct AnimationStep {
     pub x: i32,
@@ -10,29 +9,24 @@ pub struct AnimationStep {
     pub duration: u128
 }
 
-pub struct Animator<'a> {
+pub struct Animator {
     current_duration: u128,
     current_step: usize,
-    steps: Vec<AnimationStep>,
-    texture: Texture<'a>
+    steps: Vec<AnimationStep>
 }
 
-impl<'a> Animator<'a> {
-    pub fn new(texture_creator: &'a TextureCreator<WindowContext>, steps: Vec<AnimationStep>) -> Self {
-        let texture = texture_creator.load_texture("assets/trump_run.png")
-            .expect("Could not load texture");
-
+impl Animator {
+    pub fn new(steps: Vec<AnimationStep>) -> Self {
         Self {
             current_duration: steps[0].duration,
             current_step: steps.len(),
-            texture,
             steps
         }
     }
 }
 
-impl<'a> Renderable for Animator<'a> {
-    fn render(&mut self, t: u128, dt: u128, canvas: &mut Canvas<Window>) {
+impl Renderable for Animator {
+    fn render(&mut self, data: RenderData) {
         self.current_step %= self.steps.len();
 
         let step = &self.steps[self.current_step];
@@ -42,7 +36,7 @@ impl<'a> Renderable for Animator<'a> {
             self.current_step += 1;
         }
 
-        let (screen_width, screen_height) = canvas.output_size()
+        let (screen_width, screen_height) = data.canvas.output_size()
             .expect("could not get canvas size");
 
         let sprite = Rect::new(step.x, step.y, step.w, step.h);
@@ -52,10 +46,12 @@ impl<'a> Renderable for Animator<'a> {
         let screen_position = position + Point::new(screen_width as i32 / 2, screen_height as i32 / 2);
         let screen_rect = Rect::from_center(screen_position, 100, 100);
 
-        canvas.copy(&self.texture, sprite, screen_rect)
+        let texture = data.textures.get_texture("Trump");
+
+        data.canvas.copy(texture, sprite, screen_rect)
             .expect("Could not write to screen");
         
 
-        self.current_duration += dt;
+        self.current_duration += data.dt;
     }
 }
