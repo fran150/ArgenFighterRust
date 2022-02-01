@@ -1,16 +1,9 @@
-use engine::{Game, GameLoop, Stepables};
-use world::Trump;
-
 mod engine;
-mod world;
+mod sys;
 
-fn main() -> Result<(), String> {
-    let mut game = Game::new("Test", 1024, 768);
-    
-    let mut gl = std::mem::replace(&mut game.game_loop, GameLoop { objects: Stepables::new() });
+fn main() -> Result<(), String> { 
+    let mut engine = engine::Main::new();
 
-    gl.run(&mut game);
-    
-
+    engine.run();
     Ok(())
 }
