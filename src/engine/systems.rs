@@ -5,25 +5,12 @@ use sdl2::{
 
 use super::{input, Textures};
 
-pub struct RenderData<'a> {
-    pub t: u128, 
-    pub dt: u128, 
-    pub canvas: &'a mut Canvas<Window>, 
-    pub textures: &'a Textures<'a>
-}
-
-pub struct UpdateData<'a> {
-    pub t: u128, 
-    pub dt: u128, 
-    pub keyboard: input::Keyboard<'a>
-}
-
 pub trait Renderable {
-    fn render(&mut self, data: RenderData);
+    fn render(&mut self, t: u128, dt: u128, canvas: &mut Canvas<Window>, textures: &mut Textures);
 }
 
 pub trait Updatable {
-    fn update(&mut self, data: UpdateData);
+    fn update(&mut self, t: u128, dt: u128, keyboard: input::Keyboard);
 }
 
 pub enum System {

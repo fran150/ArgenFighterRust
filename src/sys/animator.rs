@@ -1,5 +1,5 @@
-use sdl2::rect::{Rect, Point};
-use crate::engine::{Renderable, RenderData};
+use sdl2::{rect::{Rect, Point}, render::Canvas, video::Window};
+use crate::engine::{Renderable, Textures};
 
 pub struct AnimationStep {
     pub x: i32,
@@ -26,7 +26,7 @@ impl Animator {
 }
 
 impl Renderable for Animator {
-    fn render(&mut self, data: RenderData) {
+    fn render(&mut self, t: u128, dt: u128, canvas: &mut Canvas<Window>, textures: &mut Textures) {
         self.current_step %= self.steps.len();
 
         let step = &self.steps[self.current_step];
@@ -36,7 +36,7 @@ impl Renderable for Animator {
             self.current_step += 1;
         }
 
-        let (screen_width, screen_height) = data.canvas.output_size()
+        let (screen_width, screen_height) = canvas.output_size()
             .expect("could not get canvas size");
 
         let sprite = Rect::new(step.x, step.y, step.w, step.h);
@@ -46,12 +46,12 @@ impl Renderable for Animator {
         let screen_position = position + Point::new(screen_width as i32 / 2, screen_height as i32 / 2);
         let screen_rect = Rect::from_center(screen_position, 100, 100);
 
-        let texture = data.textures.get_texture("Trump");
+        let texture = textures.get_texture("Trump");
 
-        data.canvas.copy(texture, sprite, screen_rect)
+        canvas.copy(texture, sprite, screen_rect)
             .expect("Could not write to screen");
         
 
-        self.current_duration += data.dt;
+        self.current_duration += dt;
     }
 }
