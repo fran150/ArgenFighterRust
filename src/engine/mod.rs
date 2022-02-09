@@ -2,18 +2,16 @@ use std::time::Instant;
 use sdl2::pixels::Color;
 
 pub mod input;
-mod systems;
+mod game_object;
 mod textures;
 mod game_level;
 
+pub use game_object::GameObject;
 pub use game_level::GameLevel;
-pub use systems::Renderable;
-pub use systems::Updatable;
-pub use systems::System;
 pub use textures::Textures;
 
-const PPS:u128 = 60;
-const FPS:u128 = 60;
+const PPS:f64 = 60.0;
+const FPS:f64 = 60.0;
 
 pub struct Game {
     active_level: usize,
@@ -60,25 +58,25 @@ impl Game {
 
         'game_loop: loop {
             let level = &mut self.levels[self.active_level];
-            let mut systems = level.load(&mut canvas, &mut textures);
+            let mut game_objects = level.load(&mut canvas, &mut textures);
 
             let instant = Instant::now();
-            let mut t = 0;
+            let mut t = 0.0;
 
             let mut previous_time = 0;
-            let mut physics_time = 0;
-            let mut frame_time = 0;
+            let mut physics_time = 0.0;
+            let mut frame_time = 0.0;
 
-            let mut rate_accumulator = 0;
+            let mut rate_accumulator = 0.0;
             let mut physics_step_counter = 0;
             let mut frame_counter = 0;
 
-            let physics_size = 1000 / PPS;
-            let frame_size = 1000 / FPS;
+            let physics_size = 1000.0 / PPS;
+            let frame_size = 1000.0 / FPS;
 
             'level_loop: loop {
                 let current_time = instant.elapsed().as_millis();            
-                let dt = current_time - previous_time;
+                let dt = (current_time - previous_time) as f64;
                 previous_time = current_time;
                 
                 t += dt;
@@ -95,16 +93,14 @@ impl Game {
                         break 'game_loop;
                     }
 
-                    for system in systems.iter_mut() {
-                        if let System::UpdateSystem(updatable) = system {
-                            updatable.update(t, physics_size, input_handler.keyboard());
-                        }
+                    for game_object in game_objects.iter_mut() {
+                        game_object.update(t, physics_size, input_handler.keyboard());
                     }
 
-                    level.update(t, physics_size, &mut systems);
+                    level.update(t, physics_size, &mut game_objects);
 
                     if level.is_level_completed() {
-                        let new_level = level.unload(&mut systems);
+                        let new_level = level.unload(&mut game_objects);
 
                         if new_level > 0 && new_level < self.levels.len() {
                             self.active_level = new_level;
@@ -122,10 +118,8 @@ impl Game {
 
                     canvas.clear();
 
-                    for system in systems.iter_mut() {
-                        if let System::RenderSystem(renderable) = system {
-                            renderable.render(t, frame_size, &mut canvas, &mut textures);
-                        }
+                    for game_object in game_objects.iter_mut() {
+                        game_object.render(t, frame_size, &mut canvas, &mut textures);
                     }
             
                     canvas.present();
@@ -133,13 +127,13 @@ impl Game {
                     frame_counter += 1;
                 }
 
-                if rate_accumulator > 1000 {
+                if rate_accumulator > 1000.0 {
                     println!("{} PPS - {} FPS", physics_step_counter, frame_counter);
                     
                     physics_step_counter = 0;
                     frame_counter = 0;
 
-                    rate_accumulator -= 1000;
+                    rate_accumulator -= 1000.0;
                 }
             }
         }            

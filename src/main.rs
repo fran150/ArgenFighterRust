@@ -1,15 +1,12 @@
 mod engine;
-mod sys;
+mod utils;
+mod world;
 
-use engine::{System, GameLevel, Textures};
+use engine::{GameLevel, Textures, GameObject};
 use sdl2::{render::Canvas, video::Window};
 
-use crate::sys::animator::{ 
-    AnimationStep,
-    Animator
-};
+use world::characters::Trump;
 
-const SPEED: u128 = 70;
 
 struct FirstLevel {
     completed: bool
@@ -24,73 +21,23 @@ impl FirstLevel {
 }
 
 impl GameLevel for FirstLevel {    
-    fn load(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures) -> Vec<System> {
-        let mut systems = Vec::new();
+    fn load(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures) -> Vec<Box<dyn GameObject>> {
+        let mut objects: Vec<Box<dyn GameObject>> = Vec::new();
 
-        let steps = vec![
-            AnimationStep {
-                x: 0,
-                y: 0,
-                w: 100,
-                h: 100,
-                duration: SPEED
-            },
-            AnimationStep {
-                x: 100,
-                y: 0,
-                w: 100,
-                h: 100,
-                duration: SPEED
-            },
-            AnimationStep {
-                x: 200,
-                y: 0,
-                w: 100,
-                h: 100,
-                duration: SPEED
-            },
-            AnimationStep {
-                x: 300,
-                y: 0,
-                w: 100,
-                h: 100,
-                duration: SPEED
-            },
-            AnimationStep {
-                x: 400,
-                y: 0,
-                w: 100,
-                h: 100,
-                duration: SPEED
-            },
-            AnimationStep {
-                x: 500,
-                y: 0,
-                w: 100,
-                h: 100,
-                duration: SPEED
-            }
-        ];
-
-        textures.load_texture("Trump", "assets/trump_run.png");
-        
-        let animator = Animator::new(steps);
-        systems.push(System::RenderSystem(Box::new(animator)));
+        let trump = Trump::new(utils::coordinates::World(0,0,0), textures);
+        objects.push(Box::new(trump));
     
-        systems
+        objects
     }
 
     fn is_level_completed(&self) -> bool {
         self.completed
     }
 
-    fn update(&mut self, t: u128, dt: u128, systems: &mut Vec<System>) {
-        if t > 5000 {
-            self.completed = true;
-        }
+    fn update(&mut self, t: f64, dt: f64, systems: &mut Vec<Box<dyn GameObject>>) {
     }
 
-    fn unload(&mut self, systems: &mut Vec<System>) -> usize {
+    fn unload(&mut self, systems: &mut Vec<Box<dyn GameObject>>) -> usize {
         1
     }
 }

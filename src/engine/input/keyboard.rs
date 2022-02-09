@@ -17,15 +17,15 @@ impl<'a> Keyboard<'a> {
         }
     }
 
-    pub fn is_up(&self, key: Keycode) {
-        self.up_keys.contains(&key);
+    pub fn is_up(&self, key: Keycode) -> bool {
+        self.up_keys.contains(&key)
     }
 
-    pub fn is_down(&self, key: Keycode) {
-        self.down_keys.contains(&key);
+    pub fn is_down(&self, key: Keycode) -> bool {
+        self.down_keys.contains(&key)
     }
 
-    pub fn is_pressed(&self, key: Keycode) {
-        self.pressed_keys.contains(&key);
+    pub fn is_pressed(&self, key: Keycode) -> bool {
+        self.pressed_keys.contains(&key)
     }
 }
