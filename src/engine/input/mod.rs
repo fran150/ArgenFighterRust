@@ -29,7 +29,7 @@ impl InputHandler {
         self.up_keys.clear();
         self.down_keys.clear();
 
-        for event in self.event_pump.poll_event() {
+        while let Some(event) = self.event_pump.poll_event() {
             match event {
                 Event::KeyUp { keycode: Some(key), .. } => {
                     self.up_keys.insert(key);

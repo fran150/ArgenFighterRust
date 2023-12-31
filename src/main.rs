@@ -21,11 +21,11 @@ impl FirstLevel {
 }
 
 impl GameLevel for FirstLevel {    
-    fn load(&mut self, canvas: &mut Canvas<Window>, textures: &mut Textures) -> Vec<Box<dyn GameObject>> {
+    fn load(&mut self, _canvas: &mut Canvas<Window>, textures: &mut Textures) -> Vec<Box<dyn GameObject>> {
         let mut objects: Vec<Box<dyn GameObject>> = Vec::new();
 
         let trump = Trump::new(utils::coordinates::World(0,0,0), textures);
-        objects.push(Box::new(trump));
+        objects.push(Box::new(trump));        
     
         objects
     }
@@ -34,10 +34,10 @@ impl GameLevel for FirstLevel {
         self.completed
     }
 
-    fn update(&mut self, t: f64, dt: f64, systems: &mut Vec<Box<dyn GameObject>>) {
+    fn update(&mut self, _t: f64, _dt: f64, _systems: &mut Vec<Box<dyn GameObject>>) {
     }
 
-    fn unload(&mut self, systems: &mut Vec<Box<dyn GameObject>>) -> usize {
+    fn unload(&mut self, _systems: &mut Vec<Box<dyn GameObject>>) -> usize {
         1
     }
 }
@@ -45,6 +45,7 @@ impl GameLevel for FirstLevel {
 fn main() -> Result<(), String> { 
     let level = FirstLevel::new();
     let mut engine = engine::Game::new(vec![Box::new(level)]);
+
     engine.run();
 
     Ok(())

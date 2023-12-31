@@ -1,6 +1,6 @@
 use sdl2::keyboard::Keycode;
 
-use crate::{utils::{coordinates::{self, Camera}, animation::{Animation, AnimationStep}}, engine::{GameObject, Textures}};
+use crate::{utils::{coordinates::{self, Camera}, animation::Animation}, engine::{GameObject, Textures}};
 
 const SPEED: f64 = 70.0;
 const TEXTURE_NAME: &str = "Trump";
@@ -35,7 +35,7 @@ impl Trump {
 }
 
 impl GameObject for Trump {
-    fn update(&mut self, t: f64, dt: f64, keyboard: crate::engine::input::Keyboard) {
+    fn update(&mut self, _t: f64, _dt: f64, keyboard: crate::engine::input::Keyboard) {
         if keyboard.is_pressed(Keycode::S) {
             self.direction = 0;
         }
@@ -53,7 +53,7 @@ impl GameObject for Trump {
         }
     }
 
-    fn render(&mut self, t: f64, dt: f64, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, textures: &mut crate::engine::Textures) {
+    fn render(&mut self, _t: f64, dt: f64, canvas: &mut sdl2::render::Canvas<sdl2::video::Window>, textures: &mut crate::engine::Textures) {
         let camera = Camera(0,0);
         let screen_coordinates = &self.position.to_screen(camera, canvas);
 
